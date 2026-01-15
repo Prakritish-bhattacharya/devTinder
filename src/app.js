@@ -1,13 +1,12 @@
 const express = require("express") // import "express" from node modules
+const connectDB = require("./config/database") // import Database file
 const app = express() // create an app instance of express()
 
-app.use("/test",(req,res) =>{
-    res.send("You are in test page!!!")
+connectDB().then(() =>{//first trying connect DB and server in try() block
+    console.log("Database connection established...")//first we try to connect with Database
+    app.listen(7777, () =>{
+        console.log("Server successfully listening on port 7777...")//After connecting DB we want to connect the server
+    })
+}).catch((err) =>{//hendle the error if DB not connect & then throw the error
+    console.log("Database cannot be connected!!!")
 })
-app.use("/",(req,res) =>{
-    res.send("Hello from the server !!!")
-})
-
-app.listen(3000, () =>{
-    console.log("server is successfully listening on port 3000...")
-})// The server listens for incoming HTTP requests on port number 3000.
