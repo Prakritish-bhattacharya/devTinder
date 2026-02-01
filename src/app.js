@@ -1,9 +1,34 @@
 const express = require("express")
 const app = express()
 
-app.use("/get",(req,res)=>{
-    res.send("hello from /get route...")
+
+app.use("/use",(req,res)=>{
+    res.send("welcome in /use route")
 })
-app.listen(7777 , ()=>{
-    console.log("server listening successfully on port number 7777...")
+
+app.get("/useGet",(req,res)=>{
+    res.send("welcome in /useGet route")
+})
+
+app.post("/usePost",(req,res)=>{
+    res.send("welcome in /usePost route")
+})
+
+app.put("/usePut",(req,res)=>{
+    res.send("welcome in /usePut route")
+})
+
+app.patch("/usePatch",(req,res)=>{
+    res.send("welcome in /usePatch route")
+})
+
+app.delete("/useDelete",(req,res)=>{
+    res.send("welcome in /useDelete route")
+})
+
+
+
+
+app.listen(7777, ()=>{
+    console.log("server listen on port number 7777...")
 })
