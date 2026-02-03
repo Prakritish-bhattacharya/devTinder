@@ -1,19 +1,16 @@
 const express = require("express")
 const {connectDB} = require("./config/database")
 const User = require("./models/user")
-const user = require("./models/user")
 const app = express()
-
-
-
 app.use(express.json())
+
 app.post("/signup", async(req,res)=>{
     const user = new User(req.body)
 
     await user.save()
-    res.send("User added Successfully...")
+    res.send("User added successfully...")
+   
 })
-
 
 // get user by email
 app.get("/user", async (req,res)=>{
@@ -43,13 +40,10 @@ app.get("/feed", async(req,res)=>{
 })
 
 connectDB().then(()=>{
-    console.log("Database connected successfully....")
+    console.log("Database created successfully...")
     app.listen(7777,()=>{
-        console.log("Server connected on port number 7777 ....")
+        console.log("Server created on port umber 7777....")
     })
 }).catch((err)=>{
-    console.log("Database cannot be connected !!!")
+    console.log("Database cannot be created!!!")
 })
-
-
-
