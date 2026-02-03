@@ -39,6 +39,39 @@ app.get("/feed", async(req,res)=>{
     }
 })
 
+// Update data of the user
+app.patch("/user/:userId", async(req,res)=>{
+    const userId = req.params?.userId
+    const data = req.body
+
+    try {
+        const ALLOWED_UPDATES = ["profilePhoto","about","gender","age","skill"]
+        const isUpdateAllowed = Object.keys(data).every((k)=>
+            ALLOWED_UPDATES.includes(k)
+        )
+        if(!isUpdateAllowed){
+            throw new Error("Update not allowed !!!")
+        }
+
+        if(data?.skill.length > 10){
+            throw new Error("Skills cannot be more than 10...")
+        }
+        const user = await User.findByIdAndUpdate({_id: userId}, data,{
+            returnDocument: "after",
+            runValidators: true
+        })
+        console.log(user)
+        res.send("User updated successfully")
+    } catch (err) {
+        res.status(400).send("Update failed:" + err.message)
+    }
+})
+
+
+
+
+
+
 connectDB().then(()=>{
     console.log("Database created successfully...")
     app.listen(7777,()=>{
