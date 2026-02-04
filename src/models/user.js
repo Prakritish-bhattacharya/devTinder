@@ -1,63 +1,46 @@
 const mongoose = require("mongoose")
-const validator = require("validator")
 
-const userSchema  = new mongoose.Schema({
-    firstName:{
-        type:String,
-        require:true,
-        min:[4, 'Must be at least 4'],
-        max:30
+const userSchema = new mongoose.Schema({
+    firstName: {
+        type: String,
+        required: true,
+        trim: true
     },
-    lastName:{
-        type:String,
-        min:3,
-        max:30
+    lastName: {
+        type: String,
+        required: true,
+        trim: true
     },
-    emailId:{
-        type:String,
-        require:true,
+    emailId: {
+        type: String,
+        required: true,
         unique: true,
-        trim: true,
         lowercase: true,
-        validate(value){
-            if(!validator.isEmail(value)){
-                throw new Error("Invalid email address: " + value)
-            }
-        }
+        trim: true
     },
-    skill:{
-        type:[String, String, String]
+    password: {
+        type: String,
+        required: true
     },
-    profilePhoto:{
-        type:String,
-        validate(value){
-            if(!validator.isURL(value)){
-                throw new Error("Invalid image URL:" + value)
-            }
-        }
+    profilePhoto: {
+        type: String,
+        default:
+            "https://i.pinimg.com/280x280_RS/79/dd/11/79dd11a9452a92a1accceec38a45e16a.jpg"
     },
-    about:{
-        type:String
+    skill: {
+        type: [String]
     },
-    password:{
-        type:String,
-        require:true,
-        unique: true,
-        validate(value){
-            if(!validator.isStrongPassword(value)){
-                throw new Error("Your password is not strong:" + value)
-            }
-        }
+    about: {
+        type: String,
+        maxlength: 100
+    },
+    gender: {
+        type: String,
+        enum: ["male", "female", "others"]
     },
     age:{
-        type:String,
-        require:true
-    },
-    gender:{
-        type:String,
+        type:Number
     }
-},{
-    timestamps : true
 })
 
-module.exports = new mongoose.model("User",userSchema)
+module.exports = mongoose.model("User", userSchema)
