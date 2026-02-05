@@ -3,8 +3,14 @@ const {connectDB} = require("./config/database")
 const User = require("./models/user")
 const {validateSignUpData} = require("./utils/validation")
 const bcrypt = require("bcrypt")
+const cookieParser = require("cookie-parser")
+const jwt = require("jsonwebtoken")
 const app = express()
 app.use(express.json())
+app.use(cookieParser())
+
+
+
 
 //  signUp user....>
 app.post("/signup", async(req,res)=>{
@@ -44,6 +50,14 @@ app.post("/login", async(req,res)=>{
         const isPasswordValid  = await  bcrypt.compare(password, user.password)   // compare the password between plain text and encrypted password
 
         if(isPasswordValid){  // if password matched then send a response 👇
+
+            // create a JWT token for the user
+            const token = jwt.sign({ _id : user._id }, "DEV@Tinder$790")
+            console.log(token)
+            // Add the token to cookie and send the response back to the user
+            res.cookie("token",token)
+
+
             res.send("user login successfull...")
         }else{  // otherwise throw an error 👇
             throw new Error("Password is not correct...")
@@ -52,6 +66,38 @@ app.post("/login", async(req,res)=>{
         res.status(400).send("ERROR : " + err.message)
     }
 })
+
+
+
+
+// profile API
+app.get("/profile", async(req,res)=>{
+    try{
+        const cookies = req.cookies
+        console.log(cookies)
+        const {token} = cookies
+        if(!token){
+            throw new Error("Invalid token...")
+        }
+        //  validate my token
+        const decodedMessage = await jwt.verify(token, "DEV@Tinder$790")
+
+        const {_id} = decodedMessage
+        console.log("Logged In User is : " + _id)
+
+        const user = await User.findById(_id)
+        if(!user){
+            throw new Error("User not found...")
+        }
+
+        res.send(user)
+    }catch(err){
+        res.status(400).send("ERROR : " + err.message)
+    }
+})
+
+
+
 
 // get user by email
 app.get("/user", async (req,res)=>{
