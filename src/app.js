@@ -1,13 +1,11 @@
 const express = require("express")
-
 const app = express()
 
-
-app.use((req, res)=>{
-    res.status(404).send("<h1>404 error page not found</h1>")
+// Route Handler
+app.use("/home",(req,res)=>{
+    res.send("<h1>Welcome to Express JS</h1>")
 })
 
-
-app.listen(3000, ()=>{
-    console.log("server successfully started on port 3000")
+app.listen(3000,()=>{
+    console.log("Server stared at port number 3000")
 })
