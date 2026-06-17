@@ -1,11 +1,18 @@
 const express = require("express")
+const connectDB = require("./config/database")
 const app = express()
 
-// Route Handler
-app.use("/home",(req,res)=>{
-    res.send("<h1>Welcome to Express JS</h1>")
+app.get("/user", (req,res)=>{
+    res.send("Response for /user")
 })
 
-app.listen(3000,()=>{
-    console.log("Server stared at port number 3000")
-})
+connectDB()
+    .then(()=>{
+        console.log("Database Connected Successfully")
+        app.listen(3000, ()=>{
+            console.log("Server is running on port 3000")
+        })
+    })
+    .catch(err =>{
+        console.log("Error in Database Connection")
+    })
