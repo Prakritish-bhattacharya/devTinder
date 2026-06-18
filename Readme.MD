@@ -4,3 +4,8 @@ MongoDB Connection String ---> "mongodb+srv://namastedev:lXmn4aoFOrF0gN0A@namast
 Create Mogoose Model 
 
 mongoose.model("Model_name" , schema)
+
+---
+use Express JSON middleware
+
+app.use( express.json())

@@ -1,26 +1,33 @@
 const express = require("express")
-const connectDB = require("./config/database")
-const User = require("./models/user")
+const connectDB = require("./config/database.js")
+const User = require("./models/user.js")
 const app = express()
+// import express JSON middleware
+app.use( express.json())
 
 
-app.post("/signup", async(req,res)=>{
-    const user = new User({
-        firstName : "Piku",
-        lastName : "Singh",
-        emailId : "piku@gmail.com",
-        password : "123456"
-    })
-    await user.save()
-    res.send("User created successfully")
+// create Route
+app.post("/signup", async (req,res)=>{
+    const user  = new User(req.body)
+    try {
+        // save the user
+        await user.save()
+        // console.log(req.body)
+        res.send("User created Successfully...")
+
+    } catch (error) {
+        res.status(400).send("In Signup Route...", error)        
+    }
+    
 })
+
 
 connectDB().then(()=>{
-    console.log("Database Connected Sucessfully")
+    console.log("Database connected Successfully...")
+    // Listening the server
     app.listen(7777, ()=>{
-        console.log("Server is running on port 7777")
+        console.log("Server started at port number 7777...")
     })
 }).catch(err =>{
-    console.log("Error connecting to database", err)
+    console.log("Error connecting to Database", err.message)
 })
-
