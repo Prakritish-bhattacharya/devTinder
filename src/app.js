@@ -1,6 +1,8 @@
 const express = require("express")
 const connectDB = require("./config/database.js")
 const User = require("./models/user.js")
+const {validateSignUpData} = require("./utils/validation.js")
+const bcrypt = require("bcrypt")
 const app = express()
 // import express JSON middleware
 app.use( express.json())
@@ -8,17 +10,59 @@ app.use( express.json())
 
 // create Signup Route
 app.post("/signup", async (req,res)=>{
-    const user  = new User(req.body)
     try {
+        // Validation of Data
+        validateSignUpData(req)
+        const {firstName, lastName, emailId, password} = req.body
+
+
+        // Encrypt the Password
+        const passwordHash = await bcrypt.hash(password, 10)
+        // console.log(passwordHash)
+
+        // Creating new instance of the User Model
+        const user  = new User({
+            firstName,
+            lastName,
+            emailId,
+            password: passwordHash
+        })
+    
         // save the user
         await user.save()
-        // console.log(req.body)
         res.send("User created Successfully...")
-
     } catch (error) {
-        res.status(400).send("In Signup Route...", error)        
+        res.status(400).send("In Signup Route..." + error.message)        
     }
     
+})
+
+// Login route
+app.post("/login", async(req,res)=>{
+    try {
+        // extract emailId and password
+        const {emailId, password} = req.body
+        // find user emailId from DB
+        const user = await User.findOne({emailId : emailId})
+        // if email does't exists then throw error
+        if(!user){
+            throw new Error("Email id is not present !!!")
+        }
+        /* compare two password type
+                1) plainText password ---> come from req.body
+                2) hash passwrod      ---> extract hash form from DB
+            and bcrypt.compare return a boolean value
+         */
+        const isPasswordValid = await bcrypt.compare(password, user.password)
+        if(isPasswordValid){
+            res.send("Login successfull....")
+        }else{
+            throw new Error("password is wrong !!!")
+        }
+
+    } catch (error) {
+        res.status(400).send("User Login denied !!!" + error.message)
+    }
 })
 
 // Get Users by EmailId
@@ -70,14 +114,29 @@ app.delete("/user", async(req,res)=>{
 })
 
 // Update user data
-app.patch("/user", async(req,res)=>{
-    const userId = req.body.userId
+app.patch("/user/:userId", async(req,res)=>{
+    const userId = req.params?.userId
     const data = req.body
     try {
-        await User.findByIdAndUpdate({_id: userId}, data)
+        const ALLOWED_UPDATES = [
+            "photoUrl",
+            "about",
+            "gender",  
+            "age",
+            "skills"
+        ]
+        const isUpdateAllowed = Object.keys(data).every((k)=>
+            ALLOWED_UPDATES.includes(k)
+        )
+        if(!isUpdateAllowed){
+            throw new Error("Update is not Allowed !!!")
+        }
+        await User.findByIdAndUpdate({_id: userId}, data, {
+            returnDocument: "after",
+        })
         res.send("User Updated successfully...")
     } catch (error) {
-        res.status(400).send("Something went wrong !!!")
+        res.status(400).send("Something went wrong !!!" + error.message)
     }
 })
 
