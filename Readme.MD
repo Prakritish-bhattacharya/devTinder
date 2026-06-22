@@ -13,3 +13,15 @@ app.use( express.json())
 
 ---
 complete login route
+
+===
+Implement jwt authentication
+===
+// Create a JWT Token
+const token = await jwt.sign({_id: user._id}, privateKey)
+// Add the token to cookie and send the response back to the user
+res.cookie("token", token)
+---
+jwt token compare
+---
+const decodedMessage = await jwt.verify(token, privateKey)
