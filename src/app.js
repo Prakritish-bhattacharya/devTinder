@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt")
 const cookie = require("cookie-parser")
 const cookieParser = require("cookie-parser")
 const jwt = require("jsonwebtoken")
+const { userAuth } = require("./middleware/auth.js")
 const app = express()
 // Use express JSON middleware
 app.use( express.json())
@@ -63,7 +64,7 @@ app.post("/login", async(req,res)=>{
 
             // Create a JWT Token
             const token = await jwt.sign({_id: user._id}, "DEV@Tinder$790")
-            console.log(token)
+            // console.log(token)
             // Add the token to cookie and send the response back to the user
             res.cookie("token", token)
 
@@ -79,18 +80,9 @@ app.post("/login", async(req,res)=>{
 })
 
 // profile Route
-app.get("/profile", async (req,res)=>{
+app.get("/profile", userAuth, async (req,res)=>{
     try{
-        const cookies = req.cookies
-
-        const {token} = cookies
-        if(!token){
-            throw new Error("Invalid Token")
-        }
-        const decodedMessage = await jwt.verify(token, "DEV@Tinder$790")
-        const {_id} = decodedMessage
-
-        const user = await User.findById(_id)
+        const user = req.user
         if(!user){
             throw new Error("No user found")
         }
@@ -100,80 +92,6 @@ app.get("/profile", async (req,res)=>{
     }
 })
 
-// Get Users by EmailId
-app.get("/user", async(req,res)=>{
-    const userEmail = req.body.emailId
-
-    try {
-        const users = await User.find({emailId : userEmail})
-        if(users.length === 0){
-            res.status(404).send("User not found")
-        }else{
-            res.send(users)
-        }
-    } catch (error) {
-        res.status(400).send("Something went wrong !!!")
-    }
-})
-
-// Feed API
-app.get("/feed", async(req,res)=>{
-    try {
-        const users = await User.find({})
-        res.send(users)
-    } catch (error) {
-        res.status(400).send("Something went wrong !!!")
-    }
-})
-
-//  Estimate Document count
-app.get("/estimateDoc", async(req,res)=>{
-    try {
-        const numUsers = await User.estimatedDocumentCount()
-        res.send(numUsers)
-    } catch (error) {
-        res.status(400).send("Document not found !!!")
-    }
-    
-})
-
-//  Delete a user from DB
-app.delete("/user", async(req,res)=>{
-    const userId = req.body.userId
-    try {
-        const user = await User.findByIdAndDelete({_id: userId})
-        res.send("User deleted Successfully...")
-    } catch (error) {
-        res.status(400).send("Something went wrong !!!")
-    }
-})
-
-// Update user data
-app.patch("/user/:userId", async(req,res)=>{
-    const userId = req.params?.userId
-    const data = req.body
-    try {
-        const ALLOWED_UPDATES = [
-            "photoUrl",
-            "about",
-            "gender",  
-            "age",
-            "skills"
-        ]
-        const isUpdateAllowed = Object.keys(data).every((k)=>
-            ALLOWED_UPDATES.includes(k)
-        )
-        if(!isUpdateAllowed){
-            throw new Error("Update is not Allowed !!!")
-        }
-        await User.findByIdAndUpdate({_id: userId}, data, {
-            returnDocument: "after",
-        })
-        res.send("User Updated successfully...")
-    } catch (error) {
-        res.status(400).send("Something went wrong !!!" + error.message)
-    }
-})
 
 
 connectDB().then(()=>{
