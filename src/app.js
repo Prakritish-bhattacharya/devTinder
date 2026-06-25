@@ -14,80 +14,81 @@ app.use( express.json())
 app.use(cookieParser())
 
 
-// create Signup Route
+
+
+// create signUp route
 app.post("/signup", async (req,res)=>{
     try {
-        // Validation of Data
+        // validation of data
         validateSignUpData(req)
+        // extract Keys from signUp data which come from req.body
         const {firstName, lastName, emailId, password} = req.body
 
-
-        // Encrypt the Password
+        // Encrypt the password
         const passwordHash = await bcrypt.hash(password, 10)
-        // console.log(passwordHash)
-
-        // Creating new instance of the User Model
-        const user  = new User({
+        // creating new Instance of the User model
+        const user = new User({
             firstName,
             lastName,
             emailId,
             password: passwordHash
         })
-    
-        // save the user
+        // now save user along with Hash password
         await user.save()
-        res.send("User created Successfully...")
+        // send response back to client
+        res.send("User creation Successfull....")
     } catch (error) {
-        res.status(400).send("In Signup Route..." + error.message)        
+        res.status(400).send("Carefully enter your credentials !!!", + error.message)
     }
-    
 })
 
-// Login route
+
+
+// create Login route
 app.post("/login", async(req,res)=>{
-    try {
-        // extract emailId and password
+    try{
+        //  extract emailId and password from req.body
         const {emailId, password} = req.body
-        // find user emailId from DB
-        const user = await User.findOne({emailId : emailId})
-        // if email does't exists then throw error
+
+        // check...if email exists then further proceed next step
+        const user = await User.findOne({emailId: emailId})
         if(!user){
-            throw new Error("Email id is not present !!!")
+            throw new Error("Please SignUp first !!!");
         }
-        /* compare two password type
-                1) plainText password ---> come from req.body
-                2) hash passwrod      ---> extract hash form from DB
-            and bcrypt.compare return a boolean value
-         */
+
+        /*========Now compare password with Hash Password
+            1) take plainText password from req.body
+            2) hash password extract from DB
+        */
         const isPasswordValid = await bcrypt.compare(password, user.password)
         if(isPasswordValid){
 
-            // Create a JWT Token
+            // create JWT token
             const token = await jwt.sign({_id: user._id}, "DEV@Tinder$790")
-            // console.log(token)
-            // Add the token to cookie and send the response back to the user
-            res.cookie("token", token)
+            // Add the token to cookie and send the response back to server
+            res.cookie("token", token) // cookie take arg as a key: value pair
 
-
-            res.send("Login successfull....")
+            res.send("Login Successfull....")
         }else{
-            throw new Error("password is wrong !!!")
+            throw new Error("Password is Wrong !!!")
         }
-
-    } catch (error) {
-        res.status(400).send("User Login denied !!!" + error.message)
+    }catch(error){
+        res.status(400).send("User login denied !!!" + error.message)
+        
     }
 })
 
-// profile Route
-app.get("/profile", userAuth, async (req,res)=>{
-    try{
+
+
+// Profile Route
+app.get("/profile", userAuth, async(req,res)=>{
+    try {
         const user = req.user
         if(!user){
-            throw new Error("No user found")
+            throw new Error("No User Found !!!");
         }
         res.send(user)
-    }catch(error){
+    } catch (error) {
         res.status(400).send("ERROR: " + error.message)
     }
 })
@@ -95,11 +96,10 @@ app.get("/profile", userAuth, async (req,res)=>{
 
 
 connectDB().then(()=>{
-    console.log("Database connected Successfully...")
-    // Listening the server
+    console.log("Database connected successfully...")
     app.listen(7777, ()=>{
-        console.log("Server started at port number 7777...")
+        console.log("server started at port number 7777...")
     })
 }).catch(err =>{
-    console.log("Error connecting to Database", err.message)
+    console.log("Error connecting Database !!!", err.message)
 })

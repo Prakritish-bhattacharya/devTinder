@@ -1,17 +1,27 @@
 const validator = require("validator")
 
-const validateSignUpData = (req)=>{
-    // get requires field from req.body
+const validateSignUpData = (req) =>{
+    // get required field from req.body
     const {firstName, lastName, emailId, password} = req.body
-    // put Names validation
-    if(!firstName || !lastName){
-        throw new Error("first and last name are required !!!")
-    }else if(!validator.isEmail(emailId)){
-        throw new Error("Email id is not Valid !!!")
-    }else if(!validator.isStrongPassword(password)){
-        throw new Error("Please enter strong Password !!!")
+
+    // validate all signUp data
+    if (!firstName?.trim() || !lastName?.trim()) {
+        throw new Error("First and Last Name are required !!!");
+    }
+    else if (!validator.isLength(firstName.trim(), { min: 4, max: 20 })) {
+        throw new Error("First Name must be between 4 and 20 characters !!!");
+    }
+    else if (!validator.isLength(lastName.trim(), { min: 4, max: 30 })) {
+        throw new Error("Last Name must be between 4 and 30 characters !!!");
+    }
+    else if (!validator.isEmail(emailId)) {
+        throw new Error("Email id is not Valid !!!");
+    }
+    else if(!validator.isStrongPassword(password)){
+        throw new Error("Enter a Strong password !!!")
     }
 }
 
-// Export it
+
+//  export
 module.exports = {validateSignUpData}
