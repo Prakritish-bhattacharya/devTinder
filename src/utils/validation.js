@@ -39,5 +39,7 @@ const validateEditProfileData = (req) => {
   return isEditAllowed;
 };
 
+
+
 //  export
 module.exports = { validateSignUpData, validateEditProfileData };

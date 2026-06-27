@@ -32,8 +32,11 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
       data: loggedInUser,
     });
   } catch (error) {
-    res.status(400).send("Encounting Error in profile edit !!!" + error.message);
+    res
+      .status(400)
+      .send("Encounting Error in profile edit !!!" + error.message);
   }
 });
+
 
 module.exports = profileRouter;
