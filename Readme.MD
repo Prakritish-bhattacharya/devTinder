@@ -25,3 +25,7 @@ res.cookie("token", token)
 jwt token compare
 ---
 const decodedMessage = await jwt.verify(token, privateKey)
+
+
+# Rules of writing APIs
+ - Always when ever you writing logic for API call then always cover all corner cases that appear in production

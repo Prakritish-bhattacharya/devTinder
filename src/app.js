@@ -12,11 +12,13 @@ app.use(cookieParser())
 const authRouter = require("./routers/auth.js")
 const profileRouter = require("./routers/profile.js")
 const requestRouter = require("./routers/request.js")
+const userRouter = require("./routers/user.js")
 
 // asign routers
 app.use("/", authRouter)      // Authentication Router
 app.use("/", profileRouter)  // Profile Router
 app.use("/", requestRouter) // connection request router 
+app.use("/", userRouter)   // User Router
 
 
 
