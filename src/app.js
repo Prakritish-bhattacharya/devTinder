@@ -1,12 +1,16 @@
 const express = require("express")
 const connectDB = require("./config/database.js")
 const cookieParser = require("cookie-parser")
-// const jwt = require("jsonwebtoken")
 const app = express()
+const cors = require("cors")
+
+
+app.use(cors())
 // Use express JSON middleware
 app.use( express.json())
 // Use cookie parser
 app.use(cookieParser())
+
 
 // import Routers from Router module
 const authRouter = require("./routers/auth.js")
